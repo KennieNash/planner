@@ -388,7 +388,7 @@ const Services = () => {
         <ServiceSearch onSearch={handleSearch} />
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service) => (
+          {filteredServices.map((service) => (
             <Card key={service.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -433,7 +433,7 @@ const Services = () => {
           </div>
         )}
 
-        {!loading && services.length === 0 && (
+        {!loading && filteredServices.length === 0 && (
           <div className="text-center py-8">
             <p className="text-muted-foreground">No services found. Try adjusting your search filters.</p>
           </div>

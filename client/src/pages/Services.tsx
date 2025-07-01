@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'wouter';
 import { Search, MapPin, Grid, List, ArrowLeft, Star, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -149,7 +149,7 @@ const categories = [
 ];
 
 const Services = () => {
-  const navigate = useNavigate();
+  const [location, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -420,7 +420,7 @@ const Services = () => {
                   ${service.price.amount || (service.price.range ? service.price.range.min : 0)}
                   <span className="text-sm text-muted-foreground">/hour</span>
                 </div>
-                <Button onClick={() => navigate(`/provider/${service.id}`)}>View Details</Button>
+                <Button onClick={() => setLocation(`/provider/${service.id}`)}>View Details</Button>
               </CardFooter>
             </Card>
           ))}

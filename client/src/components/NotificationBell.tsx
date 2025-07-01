@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 
 export function NotificationBell() {
   const { user } = useAuth();

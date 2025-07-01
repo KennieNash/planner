@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'wouter';
 import { ArrowLeft, MapPin, Calendar, Clock, DollarSign, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,7 +40,7 @@ const urgencyLevels = [
 ];
 
 const RequestService = () => {
-  const navigate = useNavigate();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<ServiceRequestData>({
@@ -122,7 +122,7 @@ const RequestService = () => {
 
       // Navigate to requests page
       setTimeout(() => {
-        navigate('/my-requests');
+        setLocation('/my-requests');
       }, 1000);
 
     } catch (error) {

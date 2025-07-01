@@ -1,18 +1,20 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation } from "wouter";
 import PaymentProcessor from "@/components/PaymentProcessor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Payment() {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const [location, setLocation] = useLocation();
+  const { toast } = useToast();
   const { user } = useAuth();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
+  // Parse search parameters from URL
+  const searchParams = new URLSearchParams(window.location.search);
   const amount = searchParams.get("amount");
   const serviceId = searchParams.get("serviceId");
 
@@ -28,7 +30,7 @@ export default function Payment() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => navigate("/services")}>
+            <Button onClick={() => setLocation("/services")}>
               Return to Services
             </Button>
           </CardContent>
@@ -49,7 +51,7 @@ export default function Payment() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => navigate("/services")}>
+            <Button onClick={() => setLocation("/services")}>
               Return to Services
             </Button>
           </CardContent>
@@ -62,11 +64,11 @@ export default function Payment() {
     setTransactionId(txId);
     setShowConfirmation(true);
     // Redirect to confirmation page with necessary parameters
-    navigate(`/payment/confirm?transactionId=${txId}&serviceId=${serviceId}&amount=${amount}`);
+    setLocation(`/payment/confirm?transactionId=${txId}&serviceId=${serviceId}&amount=${amount}`);
   };
 
   const handlePaymentCancel = () => {
-    navigate(-1);
+    window.history.back();
   };
 
   return (

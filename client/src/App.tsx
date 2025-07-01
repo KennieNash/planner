@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Router, Route, Switch } from "wouter";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { JobProvider } from "@/contexts/JobContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -31,41 +31,41 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
+    <Router>
       <AuthProvider>
         <NotificationProvider>
           <JobProvider>
             <TooltipProvider>
               <Toaster />
               <Sonner />
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/services" element={<Services />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/request-service" element={<RequestService />} />
-                <Route path="/my-requests" element={<MyRequests />} />
-                <Route path="/customer-dashboard" element={<CustomerDashboard />} />
-                <Route path="/provider-dashboard" element={<ProviderDashboard />} />
-                <Route path="/provider/:id" element={<ProviderProfile />} />
-                <Route path="/provider-registration" element={<ProviderRegistration />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/quotes" element={<QuoteManagement />} />
-                <Route path="/calendar" element={<Calendar />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/payment" element={<Payment />} />
-                <Route path="/payment/confirm" element={<PaymentConfirmation />} />
-                <Route path="/notifications" element={<Notifications />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <Switch>
+                <Route path="/" component={Index} />
+                <Route path="/services" component={Services} />
+                <Route path="/login" component={Login} />
+                <Route path="/register" component={Register} />
+                <Route path="/forgot-password" component={ForgotPassword} />
+                <Route path="/request-service" component={RequestService} />
+                <Route path="/my-requests" component={MyRequests} />
+                <Route path="/customer-dashboard" component={CustomerDashboard} />
+                <Route path="/provider-dashboard" component={ProviderDashboard} />
+                <Route path="/provider/:id" component={ProviderProfile} />
+                <Route path="/provider-registration" component={ProviderRegistration} />
+                <Route path="/messages" component={Messages} />
+                <Route path="/quotes" component={QuoteManagement} />
+                <Route path="/calendar" component={Calendar} />
+                <Route path="/profile" component={Profile} />
+                <Route path="/admin" component={AdminDashboard} />
+                <Route path="/payment" component={Payment} />
+                <Route path="/payment/confirm" component={PaymentConfirmation} />
+                <Route path="/notifications" component={Notifications} />
+                {/* Catch-all route */}
+                <Route component={NotFound} />
+              </Switch>
             </TooltipProvider>
           </JobProvider>
         </NotificationProvider>
       </AuthProvider>
-    </BrowserRouter>
+    </Router>
   </QueryClientProvider>
 );
 

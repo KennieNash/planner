@@ -1,11 +1,18 @@
-import { PrismaClient } from '@prisma/client';
-
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+// Simple database stub for development
+export const db = {
+  user: {
+    findUnique: async () => null,
+    create: async () => null,
+    update: async () => null,
+  },
+  serviceRequest: {
+    findMany: async () => [],
+    create: async () => null,
+  },
+  notification: {
+    findMany: async () => [],
+    create: async () => null,
+  },
 };
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
-} 
+export const prisma = db; 

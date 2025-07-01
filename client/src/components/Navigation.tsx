@@ -1,11 +1,11 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'wouter';
 import { Home, MessageSquare, ClipboardList, Settings, Calendar, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Navigation = () => {
-  const location = useLocation();
+  const [location] = useLocation();
   const { user, logout } = useAuth();
 
   const navItems = [
@@ -21,7 +21,7 @@ const Navigation = () => {
       <div className="flex justify-around items-center max-w-md mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.path;
+          const isActive = location === item.path;
           
           return (
             <Link key={item.path} to={item.path}>

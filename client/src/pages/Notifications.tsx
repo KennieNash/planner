@@ -1,37 +1,49 @@
-import { useQuery } from "@tanstack/react-query";
-import { notificationService } from "@/services/notificationService";
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { NotificationType } from "@prisma/client";
+
+type NotificationType = "SYSTEM" | "SERVICE_REQUEST" | "PAYMENT" | "MESSAGE";
 
 export default function Notifications() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<NotificationType | "all">("all");
 
-  const { data: notifications, refetch } = useQuery({
-    queryKey: ["notifications", activeTab],
-    queryFn: () =>
-      activeTab === "all"
-        ? notificationService.getUserNotifications(user?.id || "")
-        : notificationService.getNotificationsByType(user?.id || "", activeTab),
-    enabled: !!user,
-  });
+  // Mock data for notifications
+  const notifications = {
+    notifications: [
+      {
+        id: "1",
+        title: "Service Request Update",
+        message: "Your plumbing request has been accepted",
+        createdAt: new Date().toISOString(),
+        isRead: false,
+        type: "SERVICE_REQUEST" as NotificationType,
+        priority: "HIGH" as const
+      },
+      {
+        id: "2", 
+        title: "Payment Confirmed",
+        message: "Payment of $150 has been processed",
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        isRead: true,
+        type: "PAYMENT" as NotificationType,
+        priority: "MEDIUM" as const
+      }
+    ]
+  };
 
-  const { data: stats } = useQuery({
-    queryKey: ["notificationStats"],
-    queryFn: () => notificationService.getNotificationStats(user?.id || ""),
-    enabled: !!user,
-  });
+  const stats = {
+    total: 15,
+    unread: 3,
+    priorityStats: { HIGH: 1, MEDIUM: 5, LOW: 9 }
+  };
 
-  const handleMarkAllAsRead = async () => {
-    if (user) {
-      await notificationService.markAllAsRead(user.id);
-      refetch();
-    }
+  const handleMarkAllAsRead = () => {
+    console.log('Mark all as read');
   };
 
   if (!user) return null;

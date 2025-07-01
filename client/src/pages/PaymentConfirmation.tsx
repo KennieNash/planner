@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Check, X } from 'lucide-react';
-import { useProviderHandlers } from '@/hooks/useProviderHandlers';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 const PaymentConfirmation = () => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { handleConfirmPayment, handleCheckPaymentStatus } = useProviderHandlers();
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  
+  // Mock search params for development
+  const searchParams = new URLSearchParams(window.location.search);
   
   const transactionId = searchParams.get('transactionId');
   const serviceId = searchParams.get('serviceId');
@@ -21,61 +22,53 @@ const PaymentConfirmation = () => {
   // Validate required parameters
   useEffect(() => {
     if (!transactionId || !serviceId || !amountParam) {
-      toast.error('Missing required payment information');
-      navigate('/services');
+      toast({
+        title: "Payment Error",
+        description: "Missing required payment information",
+        variant: "destructive"
+      });
+      setLocation('/services');
     }
-  }, [transactionId, serviceId, amountParam, navigate]);
-
-  useEffect(() => {
-    if (!transactionId) return;
-
-    const checkStatus = async () => {
-      const result = await handleCheckPaymentStatus(transactionId);
-      if (result.success) {
-        setStatus(result.status || 'pending');
-      }
-    };
-
-    checkStatus();
-    const intervalId = setInterval(checkStatus, 5000);
-
-    return () => clearInterval(intervalId);
-  }, [transactionId, handleCheckPaymentStatus]);
+  }, [transactionId, serviceId, amountParam, setLocation, toast]);
 
   const handleConfirm = async () => {
     if (!transactionId) return;
 
     setIsConfirming(true);
     try {
-      const result = await handleConfirmPayment(transactionId);
-      if (result.success) {
+      // Mock payment confirmation
+      setTimeout(() => {
         setStatus('completed');
-        toast.success('Payment confirmed successfully');
-        // Redirect to booking details or dashboard after a short delay
+        toast({
+          title: "Payment Confirmed",
+          description: "Payment confirmed successfully"
+        });
+        // Redirect to bookings after a short delay
         setTimeout(() => {
-          navigate('/bookings');
+          setLocation('/customer-dashboard');
         }, 2000);
-      } else {
-        setStatus('failed');
-        toast.error('Failed to confirm payment');
-      }
+        setIsConfirming(false);
+      }, 1000);
     } catch (error) {
       setStatus('failed');
-      toast.error('An error occurred while confirming payment');
-    } finally {
+      toast({
+        title: "Payment Failed",
+        description: "An error occurred while confirming payment",
+        variant: "destructive"
+      });
       setIsConfirming(false);
     }
   };
 
   const formatAmount = (amount: string | null): string => {
-    if (!amount) return '0 UGX';
+    if (!amount) return '$0';
     const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount)) return '0 UGX';
+    if (isNaN(parsedAmount)) return '$0';
     
-    return new Intl.NumberFormat('en-UG', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'UGX',
-      minimumFractionDigits: 0
+      currency: 'USD',
+      minimumFractionDigits: 2
     }).format(parsedAmount);
   };
 
@@ -95,8 +88,8 @@ const PaymentConfirmation = () => {
             <p className="text-muted-foreground mb-4">
               Your payment of {formatAmount(amountParam)} has been confirmed.
             </p>
-            <Button onClick={() => navigate('/bookings')}>
-              View Booking
+            <Button onClick={() => setLocation('/customer-dashboard')}>
+              View Dashboard
             </Button>
           </CardContent>
         </Card>
@@ -114,16 +107,14 @@ const PaymentConfirmation = () => {
             </div>
             <h3 className="text-xl font-bold mb-2">Payment Failed</h3>
             <p className="text-muted-foreground mb-4">
-              We couldn't confirm your payment. Please try again or contact support.
+              There was an issue confirming your payment. Please try again.
             </p>
-            <div className="space-x-2">
-              <Button onClick={() => navigate(-1)}>
-                Try Again
-              </Button>
-              <Button variant="outline" onClick={() => navigate('/support')}>
-                Contact Support
-              </Button>
-            </div>
+            <Button onClick={() => setLocation('/payment')} variant="outline" className="mr-2">
+              Try Again
+            </Button>
+            <Button onClick={() => setLocation('/services')}>
+              Return to Services
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -134,51 +125,36 @@ const PaymentConfirmation = () => {
     <div className="container mx-auto py-8">
       <Card className="max-w-md mx-auto">
         <CardHeader>
-          <CardTitle>Confirm Payment</CardTitle>
+          <CardTitle>Payment Confirmation</CardTitle>
           <CardDescription>
-            Please confirm that you have completed the payment on your mobile money app
+            Confirming your payment of {formatAmount(amountParam)}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold mb-2">
-              {formatAmount(amountParam)}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Transaction ID: {transactionId}
-            </p>
+        <CardContent className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-blue-500 rounded-full flex items-center justify-center">
+            <Loader2 className="w-8 h-8 text-white animate-spin" />
           </div>
-
-          <div className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={() => navigate(-1)}
-              disabled={isConfirming}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleConfirm}
-              disabled={isConfirming}
-            >
-              {isConfirming ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Confirming...
-                </>
-              ) : (
-                "I've Completed the Payment"
-              )}
-            </Button>
-          </div>
-
-          <div className="text-xs text-muted-foreground text-center">
-            🔒 Your payment information is secure and encrypted
-          </div>
+          <p className="text-muted-foreground mb-4">
+            Please wait while we confirm your payment...
+          </p>
+          <Button 
+            onClick={handleConfirm} 
+            disabled={isConfirming}
+            className="w-full"
+          >
+            {isConfirming ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Confirming...
+              </>
+            ) : (
+              'Confirm Payment'
+            )}
+          </Button>
         </CardContent>
       </Card>
     </div>
   );
 };
 
-export default PaymentConfirmation; 
+export default PaymentConfirmation;

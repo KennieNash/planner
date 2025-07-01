@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useProviderHandlers } from '@/hooks/useProviderHandlers';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 interface PaymentProcessorProps {
   amount: number;
@@ -33,6 +33,7 @@ const PaymentProcessor = ({
   onPaymentSuccess, 
   onPaymentCancel 
 }: PaymentProcessorProps) => {
+  const { toast } = useToast();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('mtn');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [cardDetails, setCardDetails] = useState({
@@ -91,12 +92,20 @@ const PaymentProcessor = ({
   const handlePayment = async () => {
     if (selectedMethod === 'mtn' || selectedMethod === 'airtel') {
       if (!validatePhoneNumber(phoneNumber)) {
-        toast.error('Please enter a valid phone number');
+        toast({
+          title: "Invalid Phone Number",
+          description: "Please enter a valid phone number",
+          variant: "destructive"
+        });
         return;
       }
     } else if (selectedMethod === 'stripe') {
       if (!validateCardDetails()) {
-        toast.error('Please enter valid card details');
+        toast({
+          title: "Invalid Card Details",
+          description: "Please enter valid card details",
+          variant: "destructive"
+        });
         return;
       }
     }

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { useLocation } from 'wouter';
+import { useToast } from '@/hooks/use-toast';
 
 interface User {
   id: string;
@@ -18,10 +18,6 @@ interface AuthContextType {
   register: (email: string, password: string, firstName: string, lastName: string, phone: string, userType: 'customer' | 'provider') => Promise<void>;
   logout: () => void;
   socialLogin: (provider: 'google' | 'facebook') => Promise<void>;
-  verifyPhone: (phone: string) => Promise<void>;
-  verifyOTP: (otp: string) => Promise<void>;
-  enableMFA: () => Promise<string>;
-  verifyMFA: (code: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,58 +25,64 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
 
   useEffect(() => {
+    // Simulate checking for existing session
     const checkSession = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const res = await fetch('http://localhost:4000/api/me', {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (res.ok) {
-            const user = await res.json();
-            setUser(user);
-          } else {
-            setUser(null);
-            localStorage.removeItem('token');
-          }
-        } catch {
-          setUser(null);
-          localStorage.removeItem('token');
+      try {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+          setUser(JSON.parse(savedUser));
         }
+      } catch (error) {
+        console.error('Session check failed:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+
     checkSession();
   }, []);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:4000/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      // Mock login for development
+      const mockUser: User = {
+        id: '1',
+        email,
+        firstName: 'John',
+        lastName: 'Doe',
+        role: 'customer'
+      };
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setUser(mockUser);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      localStorage.setItem('token', 'mock-token');
+      
+      toast({
+        title: "Login Successful",
+        description: "Welcome back!"
       });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Login failed');
-      }
-      const { token, user } = await res.json();
-      localStorage.setItem('token', token);
-      setUser(user);
-      toast.success('Login successful!');
-      if (user.role === 'ADMIN') {
-        navigate('/admin');
-      } else if (user.role === 'PROVIDER') {
-        navigate('/provider-dashboard');
+      
+      if (mockUser.role === 'ADMIN') {
+        setLocation('/admin');
+      } else if (mockUser.role === 'PROVIDER') {
+        setLocation('/provider-dashboard');
       } else {
-        navigate('/customer-dashboard');
+        setLocation('/customer-dashboard');
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Login failed.');
+      toast({
+        title: "Login Failed",
+        description: error instanceof Error ? error.message : 'Login failed',
+        variant: "destructive"
+      });
       throw error;
     } finally {
       setLoading(false);
@@ -90,63 +92,104 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (email: string, password: string, firstName: string, lastName: string, phone: string, userType: 'customer' | 'provider') => {
     setLoading(true);
     try {
-      const role = userType === 'provider' ? 'PROVIDER' : 'CUSTOMER';
-      const res = await fetch('http://localhost:4000/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, firstName, lastName, phone, role }),
+      // Mock registration for development
+      const mockUser: User = {
+        id: '1',
+        email,
+        firstName,
+        lastName,
+        phone,
+        role: userType
+      };
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setUser(mockUser);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      localStorage.setItem('token', 'mock-token');
+      
+      toast({
+        title: "Registration Successful",
+        description: "Welcome to ServiceConnect!"
       });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Registration failed');
+      
+      if (userType === 'provider') {
+        setLocation('/provider-registration');
+      } else {
+        setLocation('/customer-dashboard');
       }
-      toast.success('Registration successful! You can now log in.');
-      navigate('/login');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Registration failed.');
+      toast({
+        title: "Registration Failed",
+        description: error instanceof Error ? error.message : 'Registration failed',
+        variant: "destructive"
+      });
       throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const logout = async () => {
-    localStorage.removeItem('token');
+  const logout = () => {
     setUser(null);
-    toast.success('Logged out successfully.');
-    navigate('/');
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    setLocation('/');
+    
+    toast({
+      title: "Logged Out",
+      description: "You have been logged out successfully"
+    });
   };
 
   const socialLogin = async (provider: 'google' | 'facebook') => {
-    toast.info('Social login is not implemented in this demo.');
-    throw new Error('Social login not implemented');
+    setLoading(true);
+    try {
+      // Mock social login for development
+      const mockUser: User = {
+        id: '1',
+        email: `user@${provider}.com`,
+        firstName: 'Social',
+        lastName: 'User',
+        role: 'customer'
+      };
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setUser(mockUser);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      localStorage.setItem('token', 'mock-token');
+      
+      toast({
+        title: "Login Successful",
+        description: `Welcome! Logged in with ${provider}`
+      });
+      
+      setLocation('/customer-dashboard');
+    } catch (error) {
+      toast({
+        title: "Login Failed",
+        description: `${provider} login failed`,
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const verifyPhone = async (phone: string) => {
-    toast.info('Phone verification is not implemented in this demo.');
-    return Promise.resolve();
+  const value: AuthContextType = {
+    user,
+    loading,
+    login,
+    register,
+    logout,
+    socialLogin,
   };
 
-  const verifyOTP = async (otp: string) => {
-    toast.info('OTP verification is not implemented in this demo.');
-    return Promise.resolve();
-  };
-
-  const enableMFA = async () => {
-    toast.info('MFA enablement is not implemented in this demo.');
-    return Promise.resolve('');
-  };
-
-  const verifyMFA = async (code: string) => {
-    toast.info('MFA verification is not implemented in this demo.');
-    return Promise.resolve();
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, socialLogin, verifyPhone, verifyOTP, enableMFA, verifyMFA }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
@@ -155,4 +198,4 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-} 
+}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'wouter';
 import { ArrowLeft, Star, MapPin, Phone, Mail, Calendar, Clock, Shield, Award, MessageCircle, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -137,7 +137,7 @@ const mockProvider: Provider = {
 
 const ProviderProfile = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'overview' | 'services' | 'reviews' | 'gallery'>('overview');
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
@@ -290,7 +290,7 @@ const ProviderProfile = () => {
                   <Button 
                     variant="outline" 
                     className="border-white/30 text-gray-300 hover:bg-white/10"
-                    onClick={() => navigate('/request-service')}
+                    onClick={() => setLocation('/request-service')}
                   >
                     <Calendar className="w-4 h-4 mr-2" />
                     Request Service

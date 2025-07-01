@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -23,22 +25,40 @@ const Index = () => {
               <Link to="/services" className="text-white hover:text-blue-400 transition-colors">
                 Services
               </Link>
-              <Link to="/my-requests" className="text-white hover:text-blue-400 transition-colors">
-                My Requests
-              </Link>
-              <Link to="/messages" className="text-white hover:text-blue-400 transition-colors">
-                Messages
-              </Link>
-              <Link to="/login">
-                <Button variant="ghost" className="text-white hover:text-blue-400">
-                  Login
-                </Button>
-              </Link>
-              <Link to="/register">
-                <Button className="bg-blue-500 hover:bg-blue-600 text-white">
-                  Sign Up
-                </Button>
-              </Link>
+              {user && (
+                <>
+                  <Link to="/my-requests" className="text-white hover:text-blue-400 transition-colors">
+                    My Requests
+                  </Link>
+                  <Link to="/messages" className="text-white hover:text-blue-400 transition-colors">
+                    Messages
+                  </Link>
+                  <Link to="/customer-dashboard" className="text-white hover:text-blue-400 transition-colors">
+                    Dashboard
+                  </Link>
+                  <Button 
+                    variant="ghost" 
+                    className="text-white hover:text-red-400"
+                    onClick={logout}
+                  >
+                    Logout
+                  </Button>
+                </>
+              )}
+              {!user && (
+                <>
+                  <Link to="/login">
+                    <Button variant="ghost" className="text-white hover:text-blue-400">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link to="/register">
+                    <Button className="bg-blue-500 hover:bg-blue-600 text-white">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             <button

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
-import { Home, MessageSquare, ClipboardList, Settings, Calendar, LogOut } from 'lucide-react';
+import { Home, MessageSquare, ClipboardList, Settings, Calendar, LogOut, Search, User, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -9,17 +9,26 @@ const Navigation = () => {
   const { user, logout } = useAuth();
 
   const navItems = [
-    { path: '/', icon: Home, label: 'Home' },
-    { path: '/customer-dashboard', icon: Settings, label: 'Dashboard' },
-    { path: '/my-requests', icon: ClipboardList, label: 'My Requests' },
-    { path: '/messages', icon: MessageSquare, label: 'Messages' },
-    { path: '/calendar', icon: Calendar, label: 'Calendar' },
+    { path: '/', icon: Home, label: 'Home', requireAuth: false },
+    { path: '/services', icon: Search, label: 'Services', requireAuth: false },
+    { path: '/customer-dashboard', icon: Settings, label: 'Dashboard', requireAuth: true },
+    { path: '/my-requests', icon: ClipboardList, label: 'My Requests', requireAuth: true },
+    { path: '/messages', icon: MessageSquare, label: 'Messages', requireAuth: true },
+    { path: '/calendar', icon: Calendar, label: 'Calendar', requireAuth: true },
   ];
+
+  const authItems = !user ? [
+    { path: '/login', icon: User, label: 'Login', requireAuth: false },
+    { path: '/register', icon: UserPlus, label: 'Register', requireAuth: false }
+  ] : [];
+
+  const filteredNavItems = navItems.filter(item => !item.requireAuth || user);
+  const allNavItems = [...filteredNavItems, ...authItems];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white/10 backdrop-blur-md border-t border-white/20 p-4 lg:hidden">
       <div className="flex justify-around items-center max-w-md mx-auto">
-        {navItems.map((item) => {
+        {allNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = location === item.path;
           

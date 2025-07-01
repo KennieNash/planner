@@ -26,6 +26,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Payment from "./pages/Payment";
 import PaymentConfirmation from "./pages/PaymentConfirmation";
 import Notifications from "./pages/Notifications";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -45,19 +46,63 @@ const App = () => (
                 <Route path="/register" component={Register} />
                 <Route path="/forgot-password" component={ForgotPassword} />
                 <Route path="/request-service" component={RequestService} />
-                <Route path="/my-requests" component={MyRequests} />
-                <Route path="/customer-dashboard" component={CustomerDashboard} />
-                <Route path="/provider-dashboard" component={ProviderDashboard} />
+                <Route path="/my-requests">
+                  <ProtectedRoute>
+                    <MyRequests />
+                  </ProtectedRoute>
+                </Route>
+                <Route path="/customer-dashboard">
+                  <ProtectedRoute>
+                    <CustomerDashboard />
+                  </ProtectedRoute>
+                </Route>
+                <Route path="/provider-dashboard">
+                  <ProtectedRoute>
+                    <ProviderDashboard />
+                  </ProtectedRoute>
+                </Route>
                 <Route path="/provider/:id" component={ProviderProfile} />
                 <Route path="/provider-registration" component={ProviderRegistration} />
-                <Route path="/messages" component={Messages} />
-                <Route path="/quotes" component={QuoteManagement} />
-                <Route path="/calendar" component={Calendar} />
-                <Route path="/profile" component={Profile} />
-                <Route path="/admin" component={AdminDashboard} />
-                <Route path="/payment" component={Payment} />
-                <Route path="/payment/confirm" component={PaymentConfirmation} />
-                <Route path="/notifications" component={Notifications} />
+                <Route path="/messages">
+                  <ProtectedRoute>
+                    <Messages />
+                  </ProtectedRoute>
+                </Route>
+                <Route path="/quotes">
+                  <ProtectedRoute>
+                    <QuoteManagement />
+                  </ProtectedRoute>
+                </Route>
+                <Route path="/calendar">
+                  <ProtectedRoute>
+                    <Calendar />
+                  </ProtectedRoute>
+                </Route>
+                <Route path="/profile">
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                </Route>
+                <Route path="/admin">
+                  <ProtectedRoute>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                </Route>
+                <Route path="/payment">
+                  <ProtectedRoute>
+                    <Payment />
+                  </ProtectedRoute>
+                </Route>
+                <Route path="/payment/confirm">
+                  <ProtectedRoute>
+                    <PaymentConfirmation />
+                  </ProtectedRoute>
+                </Route>
+                <Route path="/notifications">
+                  <ProtectedRoute>
+                    <Notifications />
+                  </ProtectedRoute>
+                </Route>
                 {/* Catch-all route */}
                 <Route component={NotFound} />
               </Switch>
